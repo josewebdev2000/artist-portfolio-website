@@ -1,8 +1,6 @@
 <?php require_once("helpers.php");
 require_once("vendor/autoload.php");
 // PHP Code for Contact Page
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
 
 // Import PHP Mailer
 use PHPMailer\PHPMailer\PHPMailer;
