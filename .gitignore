@@ -1,0 +1,4 @@
+vendor/
+!assets/vendor/
+config.php
+notes.txt
