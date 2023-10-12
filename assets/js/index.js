@@ -251,14 +251,11 @@ function sendContactInfoToServer()
 
     // Grab the contact form
     const contactForm = $("form#contact-form");
-    const contactFormBtn = document.querySelector("button#contact-form-btn");
+    const contactFormBtn = $("button#contact-form-btn");
     // Listen for the submit event
     contactForm.on("submit", function(e) {
         // Prevent default event
         e.preventDefault();
-
-        // Disable the button
-        contactFormBtn.disabled = true;
 
         // Grab elements that hold required data
         const nameElement = $("input#name");
@@ -277,48 +274,67 @@ function sendContactInfoToServer()
         const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
 
         // Check for any invalid element
-        isInvalidField(!nameRegex.test(name), nameElement);
-        isInvalidField(!emailRegex.test(email), emailElement);
-        isInvalidField(subject.length === 0, subjectElement);
-        isInvalidField(message.length === 0, messageElement);
+        const isNameInvalid = isInvalidField(!nameRegex.test(name), nameElement);
+        const isEmailInvalid = isInvalidField(!emailRegex.test(email), emailElement);
+        const isSubjectInvalid = isInvalidField(subject.length === 0, subjectElement);
+        const isMessageInvalid = isInvalidField(message.length === 0, messageElement);
+
+        const isSomeValueInvalid = [isNameInvalid, isEmailInvalid, isSubjectInvalid, isMessageInvalid];
+
+        function isSomeInvalid(element)
+        {
+            return element == true;
+        }
+
+        if (isSomeValueInvalid.some(isSomeInvalid))
+        {
+            return; // Return early to not send AJAX request
+        }
+
+        // ONLY SEND AJAX REQUEST WHEN THE BUTTON DOES NOT HAVE A SPINNER
 
         // Provide an AJAX request in order to submit this to the back-end
-        $.ajax({
-            url: contactBackEndProcessorLink,
-            type: "POST",
-            data: JSON.stringify({
-                "name" : name,
-                "email" : email,
-                "subject": subject,
-                "message": message
-            }),
-            success: function(response)
-            {
-                if (response.hasOwnProperty("success"))
+        if (!contactFormBtn.is(":has(span.spinner-border)"))
+        {
+            $.ajax({
+                url: contactBackEndProcessorLink,
+                type: "POST",
+                data: JSON.stringify({
+                    "name" : name,
+                    "email" : email,
+                    "subject": subject,
+                    "message": message
+                }),
+                beforeSend: function() {
+                    contactFormBtn.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>');
+                },
+                success: function(response)
                 {
-                    showSuccessAlert(response["success"]);
-                }
-
-                else if (response.hasOwnProperty("error"))
+                    if (response.hasOwnProperty("success"))
+                    {
+                        showSuccessAlert(response["success"]);
+                    }
+    
+                    else if (response.hasOwnProperty("error"))
+                    {
+                        showErrorAlert(response["error"]);
+                    }
+    
+                    else
+                    {
+                        showErrorAlert("Communication with the web server failed.");
+                    }
+                },
+                error: function(xhr, status, error)
                 {
-                    showErrorAlert(response["error"]);
-                }
-
-                else
+                    showErrorAlert("<div><p>Couldn't send your message.</p><p>Try again later</p></div>");
+                },
+                complete: function()
                 {
-                    showErrorAlert("Communication with the web server failed.");
+                    contactFormBtn.html('Send Message');
                 }
-                // Enable the button back
-                contactFormBtn.disabled = false;
-            },
-            error: function(xhr, status, error)
-            {
-                showErrorAlert("<div><p>Couldn't send your message.</p><p>Try again later</p></div>");
-                // Enable the button back
-                contactFormBtn.disabled = false;
-            }
-        });
-
+            });
+        }
     });
 
 }
