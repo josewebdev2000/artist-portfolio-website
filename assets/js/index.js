@@ -55,6 +55,9 @@ function hidePortfolioDetails()
 
     portfolioDetails.hide();
     portfolioShowCase.show();
+
+    // Clear Session Storage Here
+    clearSessionStorage();
 }
 
 /* Portfolio Details Code */
@@ -198,7 +201,6 @@ function goBackToPortfolio()
     // Add an click event listener to this link with the on method
     goBackLink.on("click", function(e) {
         e.preventDefault();
-        clearSessionStorage();
         hidePortfolioDetails();
     });
 }
