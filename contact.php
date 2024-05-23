@@ -1,4 +1,10 @@
-<?php require_once("helpers.php");
+<?php 
+
+ini_set('display_errors', '1');
+ini_set('display_startup_errors', '1');
+error_reporting(E_ALL);
+
+require_once("helpers.php");
 require_once("vendor/autoload.php");
 // PHP Code for Contact Page
 
@@ -23,7 +29,7 @@ function main()
     if (array_key_exists("error", $validated_and_sanitized_json_data))
     {
         // Return an erroneous JSON message with 400
-        send_json_error_response($validated_and_sanitized_json_data, 400);
+        send_json_error_response(json_encode($validated_and_sanitized_json_data), 400);
         exit();
     }
 
@@ -33,7 +39,7 @@ function main()
     // If an error happened, send a json_error_response
     if (array_key_exists("error", $json_response))
     {
-        send_json_error_response($json_response, 400);
+        send_json_error_response(json_encode($json_response), 400);
         exit();
     }
 

@@ -3,6 +3,10 @@
 // Grab POST request from user, It will contain an integer
 // Based on that integer, return an associative array of data
 
+ini_set('display_errors', '1');
+ini_set('display_startup_errors', '1');
+error_reporting(E_ALL);
+
 function main()
 {
     // Grab JSON from the user
